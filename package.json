@@ -1,0 +1,37 @@
+{
+  "name": "uet-panda",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@10.7.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint"
+  },
+  "dependencies": {
+    "@stripe/stripe-js": "^8.9.0",
+    "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
+    "firebase": "^12.10.0",
+    "framer-motion": "^12.35.1",
+    "lucide-react": "^0.577.0",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "stripe": "^20.4.1",
+    "tailwind-merge": "^3.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "firebase-admin": "^13.7.0",
+    "tailwindcss": "^4",
+    "turbo": "latest",
+    "xlsx": "^0.18.5"
+  }
+}
