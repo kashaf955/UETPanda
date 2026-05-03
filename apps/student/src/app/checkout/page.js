@@ -27,6 +27,8 @@ const CheckoutPage = () => {
   const [showStripeMock, setShowStripeMock] = useState(false);
   const router = useRouter();
 
+  const DELIVERY_FEE = 20;
+
   const handleCheckout = async (e) => {
     e.preventDefault();
     if (!user) {
@@ -53,7 +55,9 @@ const CheckoutPage = () => {
       // Create separate orders for each cafe
       for (const cafeId in splitOrders) {
         const items = splitOrders[cafeId];
-        const cafeTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const itemsTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const deliveryCharge = orderType === 'delivery' ? DELIVERY_FEE : 0;
+        const cafeTotal = itemsTotal + deliveryCharge;
 
         const orderData = {
           userId: user.uid,
@@ -65,6 +69,8 @@ const CheckoutPage = () => {
           cafeId: cafeId,
           cafeName: CAFE_NAMES[cafeId] || items[0].cafeName || `Cafe ${cafeId}`,
           items: items.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
+          subtotal: itemsTotal,
+          deliveryFee: deliveryCharge,
           total: cafeTotal,
           status: "Preparing", // Preparing -> Out for Delivery -> Delivered
           paymentMethod: paymentMethod,
@@ -92,6 +98,9 @@ const CheckoutPage = () => {
       setLoading(false);
     }
   };
+
+  const splitCount = Object.keys(getSplitOrders()).length;
+  const finalTotal = cartTotal + (orderType === 'delivery' ? (splitCount * DELIVERY_FEE) : 0);
 
   if (orderComplete) {
     return (
@@ -158,7 +167,7 @@ const CheckoutPage = () => {
                     disabled={loading}
                     className="flex-1 bg-uet-navy text-white py-4 rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-navy transition-all active:scale-95 disabled:opacity-50"
                   >
-                    {loading ? <Loader2 className="animate-spin" /> : <span>Pay Rs. {cartTotal}</span>}
+                    {loading ? <Loader2 className="animate-spin" /> : <span>Pay Rs. {finalTotal}</span>}
                   </button>
                </div>
              </div>
@@ -297,12 +306,14 @@ const CheckoutPage = () => {
                       {orderType === 'delivery' ? <Truck size={14} /> : <ShoppingBag size={14} />}
                       {orderType === 'delivery' ? 'Delivery Fee' : 'Pre Order'}
                     </span>
-                    <span className="text-uet-gold font-bold">FREE</span>
+                    <span className={orderType === 'delivery' ? "text-uet-gold font-bold" : "text-white/20"}>
+                      {orderType === 'delivery' ? `Rs. ${splitCount * DELIVERY_FEE}` : 'FREE'}
+                    </span>
                   </div>
                   <div className="h-px bg-white/10 my-6"></div>
                   <div className="flex justify-between text-2xl font-bold text-white">
                     <span>Grand Total</span>
-                    <span className="text-uet-gold">Rs. {cartTotal}</span>
+                    <span className="text-uet-gold">Rs. {finalTotal}</span>
                   </div>
                 </div>
 

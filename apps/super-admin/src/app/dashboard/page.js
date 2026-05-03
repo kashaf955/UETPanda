@@ -178,6 +178,7 @@ export default function SuperAdminDashboard() {
     const preOrder = filteredData.filter(o => o.orderType === 'takeaway');
     
     const totalRev = filteredData.reduce((sum, o) => sum + (o.total || 0), 0);
+    const delChargesRev = filteredData.reduce((sum, o) => sum + (o.deliveryFee || 0), 0);
     const delRev = delivery.reduce((sum, o) => sum + (o.total || 0), 0);
     const preRev = preOrder.reduce((sum, o) => sum + (o.total || 0), 0);
 
@@ -203,6 +204,7 @@ export default function SuperAdminDashboard() {
       deliveryCount: delivery.length,
       preOrderCount: preOrder.length,
       totalRevenue: totalRev,
+      deliveryChargesRevenue: delChargesRev,
       deliveryRev: delRev,
       preOrderRev: preRev,
       items: Object.values(itemStats).sort((a, b) => b.qty - a.qty)
@@ -324,9 +326,12 @@ export default function SuperAdminDashboard() {
             <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
             <p className="text-blue-100/40 text-[10px] font-bold uppercase tracking-widest mb-1">Total Revenue</p>
             <h3 className="text-3xl font-bold tracking-tight">Rs. {stats.totalRevenue}</h3>
-            <div className="mt-6 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-uet-gold">
-               <span>Across {stats.total} Orders</span>
-               <TrendingUp size={14} />
+            <div className="mt-2 text-[11px] font-bold text-uet-gold/80 flex items-center gap-1.5">
+               {/* <span>Incl. Rs. {stats.deliveryChargesRevenue} Delivery Fees</span> */}
+            </div>
+            <div className="mt-4 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-uet-gold">
+               {/* <span>Across {stats.total} Orders</span> */}
+               {/* <TrendingUp size={14} /> */}
             </div>
           </div>
 

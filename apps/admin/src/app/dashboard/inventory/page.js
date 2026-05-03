@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { ref, query, orderByChild, equalTo, onValue, push, set, update, remove } from "firebase/database";
 import { db, useAuthContext, storage } from "@uet-panda/shared-config";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref as storageRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, 
@@ -87,31 +87,53 @@ const InventoryPage = () => {
     return (rs.reduce((a, b) => a + b, 0) / rs.length).toFixed(1);
   };
 
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Helper to convert file to Base64 string
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    let imageUrl = image;
 
     try {
-      let imageUrl = image;
-      
       if (imageFile) {
         setIsUploading(true);
-        const fileRef = storageRef(storage, `food-images/${Date.now()}_${imageFile.name.replace(/[^a-zA-Z0-9.]/g, '')}`);
-        await uploadBytes(fileRef, imageFile);
-        imageUrl = await getDownloadURL(fileRef);
+        console.log("Converting image to Base64...");
+        
+        // Check file size (Realtime DB has limits)
+        if (imageFile.size > 800000) { 
+          alert("Please upload image less than 800kb");
+          setIsSubmitting(false);
+          setIsUploading(false);
+          return;
+        }
+
+        imageUrl = await convertToBase64(imageFile);
+        console.log("Conversion complete.");
         setIsUploading(false);
       }
 
       const productData = {
         name: name || "",
         price: parseFloat(price) || 0,
-        image: imageUrl || "",  // Save empty string if no image
+        image: imageUrl || "", 
         description: description || "",
         category: category || "desi",
         cafeId,
         isHidden: false,
         updatedAt: new Date().toISOString(),
       };
+
+      console.log("Saving to Realtime Database...", productData);
 
       if (editingProduct) {
         await update(ref(db, `menu/${cafeId}/${editingProduct.id}`), productData);
@@ -124,13 +146,15 @@ const InventoryPage = () => {
         });
       }
 
+      console.log("Product saved successfully!");
       resetForm();
       setShowModal(false);
     } catch (error) {
-      console.error(error);
-      alert("Error saving product");
+      console.error("Save Error:", error);
+      alert("Error saving to database: " + error.message);
     } finally {
       setIsSubmitting(false);
+      setIsUploading(false);
     }
   };
 
@@ -419,53 +443,72 @@ const InventoryPage = () => {
                  </div>
 
                  <div>
-                   <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1.5 ml-1">Food Image</label>
-                   <input 
-                     type="file" 
-                     accept="image/*"
-                     ref={fileInputRef}
-                     className="hidden"
-                     onChange={(e) => {
-                       if (e.target.files && e.target.files[0]) {
-                         setImageFile(e.target.files[0]);
-                       }
-                     }}
-                   />
-                   <div className="flex items-center gap-4">
-                     <div 
-                       onClick={() => fileInputRef.current?.click()}
-                       className={`flex-grow h-14 bg-slate-50 border-2 border-dashed ${imageFile || image ? 'border-green-400 bg-green-50' : 'border-slate-300'} rounded-2xl flex items-center justify-center cursor-pointer hover:bg-slate-100 transition-all font-medium text-sm text-slate-500 overflow-hidden`}
-                     >
-                       {imageFile ? (
-                         <span className="text-green-600 truncate px-4">✓ {imageFile.name}</span>
-                       ) : image ? (
-                         <span className="text-uet-navy truncate px-4 font-bold">Image Uploaded (Click to change)</span>
-                       ) : (
-                         <span className="flex items-center gap-2"><UploadCloud size={18} /> Upload Image</span>
-                       )}
-                     </div>
-                     {(imageFile || image) && (
-                       <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 relative group">
-                         <img 
-                           src={imageFile ? URL.createObjectURL(imageFile) : image} 
-                           alt="Preview" 
-                           className="w-full h-full object-cover"
-                         />
-                         <button
-                           type="button"
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             setImageFile(null);
-                             setImage("");
-                             if(fileInputRef.current) fileInputRef.current.value = '';
-                           }}
-                           className="absolute inset-0 bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer z-10"
-                         >
-                           <Trash2 size={16} className="text-white" />
-                         </button>
-                       </div>
-                     )}
-                   </div>
+                  <div>
+                    <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-1.5 ml-1">Food Image (Upload File or Paste Link)</label>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-4">
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          ref={fileInputRef}
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              setImageFile(e.target.files[0]);
+                              setImage(""); // Clear URL if file selected
+                            }
+                          }}
+                        />
+                        <div 
+                          onClick={() => fileInputRef.current?.click()}
+                          className={`flex-grow h-14 bg-slate-50 border-2 border-dashed ${imageFile ? 'border-green-400 bg-green-50' : 'border-slate-300'} rounded-2xl flex items-center justify-center cursor-pointer hover:bg-slate-100 transition-all font-medium text-sm text-slate-500 overflow-hidden`}
+                        >
+                          {imageFile ? (
+                            <span className="text-green-600 truncate px-4">✓ {imageFile.name}</span>
+                          ) : (
+                            <span className="flex items-center gap-2"><UploadCloud size={18} /> Upload File</span>
+                          )}
+                        </div>
+                        {(imageFile || image) && (
+                          <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 relative group">
+                            <img 
+                              src={imageFile ? URL.createObjectURL(imageFile) : image} 
+                              alt="Preview" 
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setImageFile(null);
+                                setImage("");
+                                if(fileInputRef.current) fileInputRef.current.value = '';
+                              }}
+                              className="absolute inset-0 bg-red-500/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer z-10"
+                            >
+                              <Trash2 size={16} className="text-white" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
+                          <ImageIcon size={16} />
+                        </div>
+                        <input 
+                          type="text"
+                          placeholder="Or paste an image URL here..."
+                          className="w-full bg-slate-50 border-none outline-none p-4 pl-12 rounded-2xl text-uet-navy font-medium focus:ring-2 focus:ring-uet-gold transition-all text-sm"
+                          value={image}
+                          onChange={(e) => {
+                            setImage(e.target.value);
+                            if (e.target.value) setImageFile(null); // Clear file if URL entered
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
                  </div>
 
                  <div>
@@ -478,13 +521,20 @@ const InventoryPage = () => {
                    />
                  </div>
 
-                 <button 
-                   type="submit"
-                   disabled={isSubmitting || isUploading}
-                   className="w-full bg-uet-navy text-white py-4 rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-navy hover:bg-uet-gold hover:text-uet-navy transition-all active:scale-95 disabled:opacity-50"
-                 >
-                   {(isSubmitting || isUploading) ? <><Loader2 className="animate-spin" size={20} /> <span className="ml-2">{isUploading ? 'Uploading Image...' : 'Saving Details...'}</span></> : <><span>{editingProduct ? 'Save Changes' : 'Add to Menu'}</span> <Check size={20} /></>}
-                 </button>
+                  <button 
+                    type="submit"
+                    disabled={isSubmitting || isUploading}
+                    className="w-full bg-uet-navy text-white py-4 rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-navy hover:bg-uet-gold hover:text-uet-navy transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    {(isSubmitting || isUploading) ? (
+                      <div className="flex items-center">
+                        <Loader2 className="animate-spin" size={20} />
+                        <span className="ml-2">Processing...</span>
+                      </div>
+                    ) : (
+                      <><span>{editingProduct ? 'Save Changes' : 'Add to Menu'}</span> <Check size={20} /></>
+                    )}
+                  </button>
               </form>
             </motion.div>
           </div>

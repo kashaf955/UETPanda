@@ -191,9 +191,9 @@ const OrderTracking = () => {
                            <div className={`w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500 ${getStatusStep(order.status) >= 3 ? 'bg-uet-gold text-uet-navy shadow-gold font-bold' : 'bg-white text-slate-300 border border-slate-200'}`}>
                               <CheckCircle2 size={18} className="md:w-6 md:h-6" />
                            </div>
-                           <span className={`mt-3 text-[8px] md:text-[10px] font-bold uppercase tracking-widest ${getStatusStep(order.status) >= 3 ? 'text-uet-navy' : 'text-slate-300'}`}>
-                              {order.orderType === 'takeaway' ? 'Done' : 'Home'}
-                           </span>
+                            <span className={`mt-3 text-[8px] md:text-[10px] font-bold uppercase tracking-widest ${getStatusStep(order.status) >= 3 ? 'text-uet-navy' : 'text-slate-300'}`}>
+                               {order.orderType === 'takeaway' ? 'Done' : 'Delivered'}
+                            </span>
                         </div>
                      </div>
                   </div>
@@ -231,17 +231,33 @@ const OrderTracking = () => {
                                          </p>
                                          <p className="text-slate-400 font-mono text-xs italic">Rs.{item.price * item.quantity}</p>
                                       </div>
-                                      {(order.status === "Delivered" || order.status === "Collected") && (
+                                   </div>
+                                  ))}
+                                  {order.deliveryFee > 0 && (
+                                    <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+                                       <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Delivery Charges</p>
+                                       <p className="text-uet-gold font-mono text-xs font-bold">Rs. {order.deliveryFee}</p>
+                                    </div>
+                                  )}
+                                  <div className="flex justify-between items-center pt-3 border-t border-slate-200">
+                                     <p className="text-uet-navy font-black text-sm uppercase tracking-tighter">Total Paid</p>
+                                     <p className="text-uet-navy font-black text-sm">Rs. {order.total}</p>
+                                  </div>
+                               </div>
+                               <div className="mt-6">
+                                  {order.items.map((item, idx) => (
+                                    <div key={idx} className="mb-2">
+                                       {(order.status === "Delivered" || order.status === "Collected") && (
                                         <button 
                                           onClick={() => {
                                             setSelectedItem(item);
                                             setCurrentOrder(order);
                                             setReviewModalOpen(true);
                                           }}
-                                          className="self-start text-[10px] font-bold text-uet-gold hover:text-uet-navy flex items-center gap-1 transition-colors"
+                                          className="self-start mt-2 px-4 py-2 bg-uet-gold/10 text-uet-gold rounded-xl text-xs md:text-sm font-bold hover:bg-uet-gold hover:text-uet-navy flex items-center gap-2 transition-all active:scale-95 border border-uet-gold/20 shadow-sm"
                                         >
-                                          <Star size={10} className="fill-uet-gold" />
-                                          Rate Item
+                                          <Star size={14} className="fill-uet-gold" />
+                                          <span>Rate Item</span>
                                         </button>
                                       )}
                                    </div>

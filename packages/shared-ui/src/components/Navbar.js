@@ -35,8 +35,8 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
             <>
-              <button onClick={() => document.getElementById('cafes')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-uet-gold transition-colors font-medium">Cafes</button>
-              <button onClick={() => document.getElementById('deals')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-uet-gold transition-colors font-medium">Deals</button>
+              <Link href="/#cafes" className="hover:text-uet-gold transition-colors font-medium">Cafes</Link>
+              <Link href="/#deals" className="hover:text-uet-gold transition-colors font-medium">Deals</Link>
               <Link href="/reviews" className="hover:text-uet-gold transition-colors font-medium">Reviews</Link>
             </>
           {userRole === 'admin' && (

@@ -42,9 +42,17 @@ export default function Home() {
   const [reviews, setReviews] = useState({});
   const [cafeRatings, setCafeRatings] = useState({});
   const [viewingFeedback, setViewingFeedback] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const { addToCart } = useCartContext();
   const { user } = useAuthContext();
   const router = useRouter();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/menu?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   // Fetch deals from Firebase and interleave them evenly across all cafes
   useEffect(() => {
@@ -160,11 +168,11 @@ export default function Home() {
         <div className="absolute top-0 right-0 w-[60vw] h-[60vw] bg-uet-gold/5 rounded-full -mr-[20vw] -mt-[20vw] blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-blue-600/5 rounded-full -ml-[20vw] -mb-[20vw] blur-[100px] pointer-events-none" />
         
-        <div className="container mx-auto px-4 py-12 lg:py-20 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <div className="container mx-auto px-4 py-8 lg:py-12 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             
             {/* ── Left Content ── */}
-            <div className="flex flex-col items-start gap-8">
+            <div className="flex flex-col items-start gap-8 lg:py-10">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -200,7 +208,8 @@ export default function Home() {
               </div>
 
               {/* Search Bar */}
-              <motion.div 
+              <motion.form 
+                onSubmit={handleSearch}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
@@ -213,14 +222,19 @@ export default function Home() {
                   </div>
                   <input 
                     type="text" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search for cafes or dishes..."
                     className="bg-transparent border-none outline-none flex-grow px-4 py-2 text-sm md:text-base text-white placeholder:text-white/20"
                   />
-                  <button className="bg-uet-gold text-uet-navy p-2.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-gold">
+                  <button 
+                    type="submit"
+                    className="bg-uet-gold text-uet-navy p-2.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-gold"
+                  >
                     <ArrowRight size={18} />
                   </button>
                 </div>
-              </motion.div>
+              </motion.form>
 
               {/* CTA Buttons */}
               <motion.div
@@ -249,19 +263,19 @@ export default function Home() {
 
             {/* ── Right Image Content ── */}
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, x: 20 }}
+              initial={{ opacity: 0, scale: 0.85, x: 50 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="relative hidden lg:block"
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="relative hidden lg:flex justify-center items-center h-full"
             >
-              <div className="relative z-10">
+              <div className="relative z-10 transform scale-110 lg:scale-125 transition-transform hover:scale-[1.3] duration-700 ease-in-out">
                 <Image 
                   src="/heroimg.png" 
                   alt="UET Panda Feast" 
-                  width={900} 
-                  height={900} 
+                  width={1100} 
+                  height={1100} 
                   priority
-                  className="object-contain"
+                  className="object-contain drop-shadow-[0_0_40px_rgba(255,215,0,0.1)]"
                 />
               </div>
             </motion.div>
@@ -525,33 +539,34 @@ export default function Home() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden"
+              className="bg-white w-full rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden"
+              style={{ maxWidth: '800px' }}
             >
               <div className="bg-uet-navy p-6 relative">
                  <button 
                   onClick={() => setViewingFeedback(null)}
                   className="absolute top-6 right-6 text-white/40 hover:text-white transition-colors"
                 >
-                  <X size={20} />
+                  <X size={24} />
                 </button>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white/10 overflow-hidden relative">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 rounded-2xl bg-white/10 overflow-hidden relative">
                     <Image
                       src={viewingFeedback.image || `https://via.placeholder.com/100?text=${encodeURIComponent(viewingFeedback.name)}`}
                       alt={viewingFeedback.name}
                       fill
-                      sizes="48px"
+                      sizes="64px"
                       className="object-cover"
                     />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white leading-tight">{viewingFeedback.name}</h3>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <Star size={12} className="text-uet-gold fill-uet-gold" />
-                      <span className="text-uet-gold font-bold text-sm">
+                    <h3 className="text-xl font-bold text-white leading-tight">{viewingFeedback.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Star size={16} className="text-uet-gold fill-uet-gold" />
+                      <span className="text-uet-gold font-bold text-lg">
                         {getRatingSummary(viewingFeedback.id || viewingFeedback.name).avg}
                       </span>
-                      <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest ml-1">
+                      <span className="text-white/60 text-xs uppercase font-bold tracking-widest ml-2">
                         {getRatingSummary(viewingFeedback.id || viewingFeedback.name).count} Reviews
                       </span>
                     </div>
@@ -559,21 +574,23 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="max-h-[60vh] overflow-y-auto p-6 space-y-4 no-scrollbar">
+              <div className="max-h-[60vh] overflow-y-auto p-8 space-y-6 no-scrollbar">
                 {reviews[viewingFeedback.id || viewingFeedback.name]?.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map((r, idx) => (
-                  <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <div className="flex justify-between items-start mb-2">
+                  <div key={idx} className="bg-slate-50 p-6 rounded-[2rem] border border-slate-200">
+                    <div className="flex justify-between items-start mb-3">
                       <div>
-                        <p className="font-bold text-uet-navy text-xs">{r.userName || "Student"}</p>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{new Date(r.createdAt).toLocaleDateString()}</p>
+                        <p className="font-bold text-uet-navy text-base">{r.userName || "Student"}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{new Date(r.createdAt).toLocaleDateString()}</p>
                       </div>
-                      <div className="flex items-center gap-0.5 bg-white px-2 py-0.5 rounded-lg border border-slate-100">
-                        <Star size={10} className="text-uet-gold fill-uet-gold" />
-                        <span className="text-[10px] font-bold text-uet-navy">{r.rating}</span>
+                      <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+                        <Star size={20} className="text-uet-gold fill-uet-gold" />
+                        <span className="text-base font-black text-uet-navy">{r.rating}</span>
                       </div>
                     </div>
                     {r.comment && (
-                      <p className="text-slate-600 text-xs leading-relaxed italic mt-2">"{r.comment}"</p>
+                      <p className="text-black text-lg leading-relaxed italic mt-4 font-bold" style={{ color: '#000000' }}>
+                        "{r.comment}"
+                      </p>
                     )}
                   </div>
                 ))}

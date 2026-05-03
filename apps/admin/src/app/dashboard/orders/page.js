@@ -15,8 +15,11 @@ import {
   ChevronDown,
   Bike,
   CreditCard,
-  Banknote
+  Banknote,
+  Printer
 } from "lucide-react";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const OrderManagement = () => {
   const { cafeId } = useAuthContext();
@@ -117,6 +120,106 @@ const OrderManagement = () => {
     (o.userName.toLowerCase().includes(searchTerm.toLowerCase()) || o.id.includes(searchTerm))
   );
 
+  const CAFE_NAMES = {
+    cafe1: "Bhola",
+    cafe2: "GSSC",
+    cafe3: "BSSC",
+    cafe4: "Annexe",
+  };
+
+  const handlePrint = async (order) => {
+    const cafeName = CAFE_NAMES[cafeId] || "UET Panda Cafe";
+    
+    // Create a temporary hidden element to render the invoice
+    const invoiceEl = document.createElement('div');
+    invoiceEl.style.position = 'absolute';
+    invoiceEl.style.left = '-9999px';
+    invoiceEl.style.top = '0';
+    invoiceEl.style.width = '800px';
+    invoiceEl.style.padding = '40px';
+    invoiceEl.style.backgroundColor = 'white';
+    invoiceEl.style.fontFamily = 'Arial, sans-serif';
+    
+    invoiceEl.innerHTML = `
+      <div style="text-align: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 30px;">
+        <div style="font-size: 28px; font-weight: 900; color: #001f3f; text-transform: uppercase;">UET PANDA</div>
+        <div style="font-size: 20px; color: #b28e23; font-weight: 700;">${cafeName}</div>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+        <div>
+          <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8;">Order Details</div>
+          <p style="margin: 2px 0; font-weight: 600;">ID: #${order.id}</p>
+          <p style="margin: 2px 0; font-weight: 600;">Date: ${new Date(order.createdAt).toLocaleString()}</p>
+          <p style="margin: 2px 0; font-weight: 600;">Type: ${order.orderType === 'takeaway' ? 'Self-Pickup' : 'Delivery'}</p>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8;">Customer Details</div>
+          <p style="margin: 2px 0; font-weight: 600;">${order.userName}</p>
+          <p style="margin: 2px 0; font-weight: 600;">${order.userPhone}</p>
+          <p style="margin: 2px 0; font-weight: 600;">${order.orderType === 'takeaway' ? 'Pickup' : order.address}</p>
+        </div>
+      </div>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+        <thead>
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <th style="text-align: left; padding: 12px 0; font-size: 10px; text-transform: uppercase; color: #94a3b8;">Item</th>
+            <th style="text-align: center; padding: 12px 0; font-size: 10px; text-transform: uppercase; color: #94a3b8;">Qty</th>
+            <th style="text-align: right; padding: 12px 0; font-size: 10px; text-transform: uppercase; color: #94a3b8;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${order.items.map(item => `
+            <tr style="border-bottom: 1px solid #f8fafc;">
+              <td style="padding: 16px 0; font-weight: 700; color: #001f3f;">${item.name}</td>
+              <td style="padding: 16px 0; text-align: center; color: #64748b;">${item.quantity}</td>
+              <td style="padding: 16px 0; text-align: right; font-weight: 600;">Rs.${item.price * item.quantity}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="margin-left: auto; width: 250px;">
+        <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+          <span style="font-size: 10px; font-weight: 800; color: #94a3b8;">SUBTOTAL</span>
+          <span style="font-weight: 600;">Rs.${order.subtotal || (order.total - (order.deliveryFee || 0))}</span>
+        </div>
+        ${order.deliveryFee > 0 ? `
+          <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+            <span style="font-size: 10px; font-weight: 800; color: #94a3b8;">DELIVERY FEE</span>
+            <span style="font-weight: 600;">Rs.${order.deliveryFee}</span>
+          </div>
+        ` : ''}
+        <div style="display: flex; justify-content: space-between; padding: 15px 0; border-top: 2px solid #001f3f; margin-top: 10px; font-size: 20px; font-weight: 900;">
+          <span>TOTAL</span>
+          <span>Rs.${order.total}</span>
+        </div>
+      </div>
+      <div style="margin-top: 60px; text-align: center; font-size: 12px; color: #94a3b8;">
+        <p>Thank you for ordering from UET Panda!</p>
+      </div>
+    `;
+
+    document.body.appendChild(invoiceEl);
+
+    try {
+      const canvas = await html2canvas(invoiceEl, {
+        scale: 2, // Better quality
+        useCORS: true
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Order_${order.id}.pdf`);
+    } catch (error) {
+      console.error("PDF Generation failed:", error);
+      alert("Failed to generate PDF. Please try again.");
+    } finally {
+      document.body.removeChild(invoiceEl);
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case "Preparing": return "bg-orange-100 text-orange-600";
@@ -202,13 +305,25 @@ const OrderManagement = () => {
                         </div>
                       ))}
                    </div>
-                   <div className="mt-3 pt-2 border-t border-slate-200 flex justify-between items-center">
-                      <div className="flex items-center text-[10px] font-bold uppercase tracking-widest text-uet-gold bg-uet-navy px-2 py-0.5 rounded">
-                         {order.paymentMethod === 'cod' ? <Banknote size={10} className="mr-1" /> : <CreditCard size={10} className="mr-1" />}
-                         {order.paymentMethod}
-                      </div>
-                      <span className="font-bold text-uet-navy">Total Rs.{order.total}</span>
-                   </div>
+                    <div className="mt-3 pt-2 border-t border-slate-200 space-y-2">
+                       <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          <span>Subtotal</span>
+                          <span>Rs.{order.subtotal || (order.total - (order.deliveryFee || 0))}</span>
+                       </div>
+                       {order.deliveryFee > 0 && (
+                         <div className="flex justify-between text-[10px] font-bold text-uet-gold uppercase tracking-widest">
+                            <span>Delivery Fee</span>
+                            <span>Rs.{order.deliveryFee}</span>
+                         </div>
+                       )}
+                       <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                          <div className="flex items-center text-[10px] font-bold uppercase tracking-widest text-uet-gold bg-uet-navy px-2 py-0.5 rounded">
+                             {order.paymentMethod === 'cod' ? <Banknote size={10} className="mr-1" /> : <CreditCard size={10} className="mr-1" />}
+                             {order.paymentMethod}
+                          </div>
+                          <span className="font-bold text-uet-navy">Total Rs.{order.total}</span>
+                       </div>
+                    </div>
                 </div>
 
                 {/* Action Buttons */}
@@ -246,9 +361,13 @@ const OrderManagement = () => {
                        <span>Mark Collected</span>
                      </button>
                    )}
-                   <button className="text-slate-400 text-xs font-bold hover:text-uet-navy transition-all py-2">
-                     Print Invoice
-                   </button>
+                    <button 
+                      onClick={() => handlePrint(order)}
+                      className="text-uet-gold text-[10px] font-black uppercase tracking-[0.2em] bg-uet-navy/5 hover:bg-uet-gold hover:text-uet-navy transition-all py-3 rounded-xl border border-uet-gold/20 flex items-center justify-center gap-2"
+                    >
+                      <Printer size={14} />
+                      Print Invoice
+                    </button>
                 </div>
               </div>
 

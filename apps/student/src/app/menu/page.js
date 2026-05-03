@@ -73,11 +73,15 @@ function MenuContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Detect category from URL
+  // Detect category and search from URL
   useEffect(() => {
     const cat = searchParams.get("category");
     if (cat) {
       setSelectedCategory(cat);
+    }
+    const search = searchParams.get("search");
+    if (search) {
+      setSearchTerm(search);
     }
   }, [searchParams]);
 
@@ -147,16 +151,51 @@ function MenuContent() {
   // Filter + Sort pipeline
   const totalItemsCount = selectedCafe === "all" ? items.length : items.filter(i => i.cafeId === selectedCafe).length;
 
-  let displayed = items.filter((i) => {
-    const q = searchTerm.toLowerCase();
-    const matchSearch =
-      i.name.toLowerCase().includes(q) ||
-      i.description?.toLowerCase().includes(q);
-    const matchCafe = selectedCafe === "all" || i.cafeId === selectedCafe;
+  // ── Smart Search (Fuzzy Match) Logic ──
+  const getLevenshteinDistance = (s1, s2) => {
+    const len1 = s1.length;
+    const len2 = s2.length;
+    const matrix = Array.from({ length: len1 + 1 }, () => Array(len2 + 1).fill(0));
+    for (let i = 0; i <= len1; i++) matrix[i][0] = i;
+    for (let j = 0; j <= len2; j++) matrix[0][j] = j;
+    for (let i = 1; i <= len1; i++) {
+      for (let j = 1; j <= len2; j++) {
+        const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j - 1] + cost
+        );
+      }
+    }
+    return matrix[len1][len2];
+  };
+
+  const isFuzzyMatch = (searchTerm, targetText) => {
+    const s = searchTerm.toLowerCase().trim();
+    const t = targetText.toLowerCase().trim();
+    if (t.includes(s)) return true;
     
-    // Check category: if product has no category, treat it as desi
+    // Split into words and check each
+    const targetWords = t.split(/\s+/);
+    return targetWords.some(word => {
+      if (word.length < 3) return word === s;
+      const distance = getLevenshteinDistance(s, word);
+      const threshold = word.length > 5 ? 2 : 1;
+      return distance <= threshold;
+    });
+  };
+
+  let displayed = items.filter((i) => {
+    const q = searchTerm.toLowerCase().trim();
+    const matchCafe = selectedCafe === "all" || i.cafeId === selectedCafe;
     const itemCat = i.category || "desi";
     const matchCategory = selectedCategory === "all" || itemCat === selectedCategory;
+
+    if (!q) return matchCafe && matchCategory;
+
+    // Fuzzy Search
+    const matchSearch = isFuzzyMatch(q, i.name) || (i.description && isFuzzyMatch(q, i.description));
     
     return matchSearch && matchCafe && matchCategory;
   });
@@ -574,33 +613,34 @@ function MenuContent() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden"
+              className="bg-white w-full rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden"
+              style={{ maxWidth: '800px' }}
             >
               <div className="bg-uet-navy p-6 relative">
                  <button 
                   onClick={() => setViewingFeedback(null)}
                   className="absolute top-6 right-6 text-white/40 hover:text-white transition-colors"
                 >
-                  <X size={20} />
+                  <X size={24} />
                 </button>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white/10 overflow-hidden relative">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 rounded-2xl bg-white/10 overflow-hidden relative">
                     <Image
                       src={viewingFeedback.image || `https://via.placeholder.com/100?text=${encodeURIComponent(viewingFeedback.name)}`}
                       alt={viewingFeedback.name}
                       fill
-                      sizes="48px"
+                      sizes="64px"
                       className="object-cover"
                     />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white leading-tight">{viewingFeedback.name}</h3>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <Star size={12} className="text-uet-gold fill-uet-gold" />
-                      <span className="text-uet-gold font-bold text-sm">
+                    <h3 className="text-xl font-bold text-white leading-tight">{viewingFeedback.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Star size={16} className="text-uet-gold fill-uet-gold" />
+                      <span className="text-uet-gold font-bold text-lg">
                         {getRatingSummary(viewingFeedback.id || viewingFeedback.name).avg}
                       </span>
-                      <span className="text-white/40 text-[10px] uppercase font-bold tracking-widest ml-1">
+                      <span className="text-white/60 text-xs uppercase font-bold tracking-widest ml-2">
                         {getRatingSummary(viewingFeedback.id || viewingFeedback.name).count} Reviews
                       </span>
                     </div>
@@ -608,21 +648,24 @@ function MenuContent() {
                 </div>
               </div>
 
-              <div className="max-h-[60vh] overflow-y-auto p-6 space-y-4 no-scrollbar">
+              <div className="max-h-[60vh] overflow-y-auto p-8 space-y-6 no-scrollbar">
                 {reviews[viewingFeedback.id || viewingFeedback.name]?.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map((r, idx) => (
-                  <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <div className="flex justify-between items-start mb-2">
+                  <div key={idx} className="bg-slate-50 p-6 rounded-[2rem] border border-slate-200">
+                    <div className="flex justify-between items-start mb-3">
                       <div>
-                        <p className="font-bold text-uet-navy text-xs">{r.userName || "Student"}</p>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{new Date(r.createdAt).toLocaleDateString()}</p>
+                        <p className="font-bold text-uet-navy text-[16px]
+                        ">{r.userName || "Student"}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">{new Date(r.createdAt).toLocaleDateString()}</p>
                       </div>
-                      <div className="flex items-center gap-0.5 bg-white px-2 py-0.5 rounded-lg border border-slate-100">
-                        <Star size={10} className="text-uet-gold fill-uet-gold" />
-                        <span className="text-[10px] font-bold text-uet-navy">{r.rating}</span>
+                      <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+                        <Star size={20} className="text-uet-gold fill-uet-gold" />
+                        <span className="text-base font-black text-uet-navy">{r.rating}</span>
                       </div>
                     </div>
                     {r.comment && (
-                      <p className="text-slate-600 text-xs leading-relaxed italic mt-2">"{r.comment}"</p>
+                      <p className="text-black text-lg leading-relaxed italic mt-4 font-bold" style={{ color: '#000000' }}>
+                        "{r.comment}"
+                      </p>
                     )}
                   </div>
                 ))}
