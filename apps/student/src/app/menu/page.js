@@ -26,7 +26,7 @@ const CAFES = [
   { id: "cafe1", label: "Bhola" },
   { id: "cafe2", label: "GSSC" },
   { id: "cafe3", label: "BSSC" },
-  { id: "cafe4", label: "Aneexe" },
+  { id: "cafe4", label: "Annexe" },
 ];
 
 const SORT_OPTIONS = [
@@ -40,7 +40,7 @@ const CAFE_NAMES = {
   cafe1: "Bhola",
   cafe2: "GSSC",
   cafe3: "BSSC",
-  cafe4: "Aneexe",
+  cafe4: "Annexe",
 };
 
 const CATEGORIES = [

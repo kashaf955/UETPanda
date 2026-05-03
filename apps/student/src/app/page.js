@@ -13,6 +13,12 @@ import {
   Clock,
   Store,
   X,
+  Search,
+  ClipboardList,
+  Lock,
+  CheckCircle,
+  Phone,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { ref, query, orderByChild, limitToFirst, onValue, equalTo } from "firebase/database";
@@ -25,7 +31,7 @@ const cafes = [
   { id: "cafe1", name: "Bhola", tagline: "Classic desi meals & famous biryani",     specialty: "Biryani & Karahi",    image: "https://images.unsplash.com/photo-1567337710282-00832b415979?w=600&auto=format&fit=crop&q=80", rating: "Loading...", color: "from-orange-600 to-red-700",    badge: "🔥 Most Popular" },
   { id: "cafe2", name: "GSSC", tagline: "Fresh burgers, sandwiches & crispy fries", specialty: "Fast Food",            image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80", rating: "Loading...", color: "from-yellow-500 to-orange-600", badge: "⚡ Quick Bites" },
   { id: "cafe3", name: "BSSC", tagline: "Hot tea, cold drinks & light snacks",      specialty: "Beverages",            image: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&auto=format&fit=crop&q=80", rating: "Loading...", color: "from-emerald-600 to-teal-700",  badge: "☕ Best Chai" },
-  { id: "cafe4", name: "Aneexe", tagline: "Shawarmas, rolls & street style eats",     specialty: "Street Food",          image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=600&auto=format&fit=crop&q=80", rating: "Loading...", color: "from-purple-600 to-indigo-700", badge: "🌯 Street Eats" },
+  { id: "cafe4", name: "Annexe", tagline: "Shawarmas, rolls & street style eats",     specialty: "Street Food",          image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=600&auto=format&fit=crop&q=80", rating: "Loading...", color: "from-purple-600 to-indigo-700", badge: "🌯 Street Eats" },
 ];
 
 /* ─── Component ────────────────────────────────────────── */
@@ -146,100 +152,190 @@ export default function Home() {
       <section
         className="
           bg-uet-navy text-white relative overflow-hidden
-          flex flex-col items-center justify-center
-          /* Fill the remaining viewport height after the 64-px navbar */
           min-h-[calc(100dvh-64px)]
-          py-8 px-4
+          flex flex-col justify-center
         "
       >
-        {/* Blobs */}
-        <div className="absolute top-0 right-0 w-[40vw] h-[40vw] bg-uet-gold/10 rounded-full -mr-[20vw] -mt-[20vw] blur-[80px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-blue-500/10 rounded-full -ml-[20vw] -mb-[20vw] blur-[80px] pointer-events-none" />
+        {/* Deep Glow Backgrounds */}
+        <div className="absolute top-0 right-0 w-[60vw] h-[60vw] bg-uet-gold/5 rounded-full -mr-[20vw] -mt-[20vw] blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-blue-600/5 rounded-full -ml-[20vw] -mb-[20vw] blur-[100px] pointer-events-none" />
+        
+        <div className="container mx-auto px-4 py-12 lg:py-20 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            
+            {/* ── Left Content ── */}
+            <div className="flex flex-col items-start gap-8">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-1.5 rounded-full backdrop-blur-md"
+              >
+                <Flame size={14} className="text-uet-gold animate-pulse" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-100/90">
+                  All Campus Cafes · One Unified Cart
+                </span>
+              </motion.div>
 
-        <div className="container mx-auto max-w-4xl text-center relative z-10 flex flex-col items-center gap-6">
-          {/* Pill badge */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full backdrop-blur-sm"
-          >
-            <Flame size={13} className="text-uet-gold" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-100/80">
-              All Campus Cafes · One Unified Cart
-            </span>
-          </motion.div>
-
-          {/* Heading — fluid font-size so it never clips */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="font-poppins font-bold leading-tight
-              text-[clamp(2.5rem,8vw,5rem)]"
-          >
-            UET{" "}
-            <span className="text-uet-gold">PANDA</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-blue-100/70 max-w-xl mx-auto font-medium leading-relaxed
-              text-[clamp(0.9rem,2.5vw,1.25rem)]"
-          >
-            Your campus hunger solved. Order from any of the{" "}
-            <span className="text-uet-gold font-bold">UET cafes</span>{" "}
-            — all in one seamless experience.
-          </motion.p>
-
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="flex flex-wrap items-center justify-center gap-4"
-          >
-            <button
-              onClick={() => cafeSectionRef.current?.scrollIntoView({ behavior: "smooth" })}
-              className="group bg-uet-gold text-uet-navy px-8 py-3.5 rounded-2xl font-bold flex items-center gap-2 shadow-gold hover:bg-white transition-all active:scale-95 text-sm md:text-base"
-            >
-              <Utensils size={18} />
-              <span>Browse Cafes</span>
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </button>
-            <Link
-              href="/menu"
-              className="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-8 py-3.5 rounded-2xl font-bold hover:bg-white/20 transition-all active:scale-95 text-sm md:text-base"
-            >
-              View All Menus
-            </Link>
-          </motion.div>
-
-          {/* Stats row */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex items-center justify-center gap-8 md:gap-14 pt-6 border-t border-white/10 w-full"
-          >
-            {[
-              { value: cafes.length > 0 ? Object.keys(cafes).length : "All", label: "Cafes" },
-              { value: "50+",    label: "Menu Items" },
-              { value: "15 min", label: "Avg. Delivery" },
-            ].map((s) => (
-              <div key={s.label} className="text-center">
-                <p className="font-bold font-poppins text-uet-gold text-[clamp(1.4rem,4vw,2rem)]">{s.value}</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-100/40 mt-0.5">{s.label}</p>
+              <div className="space-y-4">
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="font-poppins font-bold leading-[1.1] text-5xl md:text-7xl lg:text-[5.5rem] tracking-tight"
+                >
+                  UET <span className="text-uet-gold">PANDA</span>
+                </motion.h1>
+                
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="space-y-4"
+                >
+                  <h2 className="text-2xl md:text-3xl font-medium text-white/90">Your campus hunger solved.</h2>
+                  <p className="text-blue-100/50 max-w-lg font-medium leading-relaxed text-sm md:text-base">
+                    Order from any of the <span className="text-uet-gold font-bold">UET cafes</span> — all in one seamless experience.
+                  </p>
+                </motion.div>
               </div>
-            ))}
-          </motion.div>
+
+              {/* Search Bar */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="w-full max-w-md relative group"
+              >
+                <div className="absolute inset-0 bg-uet-gold/20 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                <div className="relative flex items-center bg-white/5 backdrop-blur-xl border border-white/10 p-1.5 rounded-2xl group-focus-within:border-uet-gold/50 transition-all">
+                  <div className="pl-4 text-white/30">
+                    <Search size={20} />
+                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Search for cafes or dishes..."
+                    className="bg-transparent border-none outline-none flex-grow px-4 py-2 text-sm md:text-base text-white placeholder:text-white/20"
+                  />
+                  <button className="bg-uet-gold text-uet-navy p-2.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-gold">
+                    <ArrowRight size={18} />
+                  </button>
+                </div>
+              </motion.div>
+
+              {/* CTA Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex flex-wrap items-center gap-4"
+              >
+                <button
+                  onClick={() => cafeSectionRef.current?.scrollIntoView({ behavior: "smooth" })}
+                  className="group bg-uet-gold text-uet-navy px-8 py-4 rounded-2xl font-bold flex items-center gap-2 shadow-gold hover:bg-white transition-all active:scale-95"
+                >
+                  <Utensils size={18} />
+                  <span>Browse Cafes</span>
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+                <Link
+                  href="/menu"
+                  className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 text-white px-8 py-4 rounded-2xl font-bold hover:bg-white/10 transition-all active:scale-95"
+                >
+                  <Store size={18} className="text-uet-gold" />
+                  <span>View All Menus</span>
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* ── Right Image Content ── */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="relative hidden lg:block"
+            >
+              <div className="relative z-10">
+                <Image 
+                  src="/heroimg.png" 
+                  alt="UET Panda Feast" 
+                  width={900} 
+                  height={900} 
+                  priority
+                  className="object-contain"
+                />
+              </div>
+            </motion.div>
+          </div>
+
+          {/* ── Stats & Features Section ── */}
+          <div className="mt-16 lg:mt-24 space-y-12">
+            
+            {/* Stats Box */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[2.5rem] p-8 md:p-10"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
+                <div className="flex items-center gap-6 group">
+                  <div className="w-14 h-14 bg-uet-gold/10 rounded-2xl flex items-center justify-center text-uet-gold group-hover:scale-110 transition-transform">
+                    <Store size={28} />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold font-poppins">{cafes.length}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-100/40">Active Cafes</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-6 group md:border-x border-white/10 md:px-12">
+                  <div className="w-14 h-14 bg-uet-gold/10 rounded-2xl flex items-center justify-center text-uet-gold group-hover:scale-110 transition-transform">
+                    <ClipboardList size={28} />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold font-poppins">50+</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-100/40">Menu Items</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-6 group">
+                  <div className="w-14 h-14 bg-uet-gold/10 rounded-2xl flex items-center justify-center text-uet-gold group-hover:scale-110 transition-transform">
+                    <Clock size={28} />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold font-poppins">15 min</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-100/40">Avg. Delivery</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Bottom Features Row */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-60"
+            >
+              {[
+                { label: "Secure Payments", icon: <Lock size={16} /> },
+                { label: "Verified Cafes", icon: <CheckCircle size={16} /> },
+                { label: "24/7 Support", icon: <Phone size={16} /> },
+                { label: "Loved by Students", icon: <Users size={16} /> },
+              ].map((f) => (
+                <div key={f.label} className="flex items-center gap-2.5">
+                  <div className="text-uet-gold">{f.icon}</div>
+                  <span className="text-[11px] font-bold uppercase tracking-widest">{f.label}</span>
+                </div>
+              ))}
+            </motion.div>
+          </div>
         </div>
 
         {/* Scroll indicator */}
         <button
           onClick={() => cafeSectionRef.current?.scrollIntoView({ behavior: "smooth" })}
-          className="absolute bottom-6 animate-bounce text-white/30 hover:text-uet-gold transition-colors"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce text-white/20 hover:text-uet-gold transition-colors lg:hidden"
           aria-label="Scroll down"
         >
           <ChevronDown size={28} />

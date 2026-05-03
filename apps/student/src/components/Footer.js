@@ -46,6 +46,7 @@ const Footer = () => {
             <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-uet-gold mb-6">Quick Links</p>
             <ul className="space-y-4">
               {[
+                { name: "Reviews", href: "/reviews" },
                 { name: "About Us", href: "/about" },
                 { name: "Contact Us", href: "/contact" },
                 { name: "Privacy Policy", href: "/privacy-policy" },

@@ -34,12 +34,11 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
-          {pathname === '/' && (
             <>
               <button onClick={() => document.getElementById('cafes')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-uet-gold transition-colors font-medium">Cafes</button>
               <button onClick={() => document.getElementById('deals')?.scrollIntoView({ behavior: 'smooth' })} className="hover:text-uet-gold transition-colors font-medium">Deals</button>
+              <Link href="/reviews" className="hover:text-uet-gold transition-colors font-medium">Reviews</Link>
             </>
-          )}
           {userRole === 'admin' && (
             <Link href="/dashboard" className="bg-uet-gold text-uet-navy px-4 py-1.5 rounded-full font-bold hover:bg-white transition-all shadow-sm">
               Admin Dashboard

@@ -30,7 +30,7 @@ const CAFES = [
   { id: "cafe1", name: "Bhola" },
   { id: "cafe2", name: "GSSC" },
   { id: "cafe3", name: "BSSC" },
-  { id: "cafe4", name: "Aneexe" },
+  { id: "cafe4", name: "Annexe" },
 ];
 
 const TIME_RANGES = [

@@ -11,7 +11,7 @@ const CAFE_NAMES = {
   cafe1: "Bhola",
   cafe2: "GSSC",
   cafe3: "BSSC",
-  cafe4: "Aneexe",
+  cafe4: "Annexe",
 };
 
 const CartPage = () => {
