@@ -179,7 +179,7 @@ const ReviewsPage = () => {
                   <div className="flex flex-col lg:flex-row">
                     {/* Item Info Sidebar */}
                     <div className="lg:w-1/4 bg-slate-50 p-6 flex flex-col items-center justify-center text-center border-b lg:border-b-0 lg:border-r border-slate-100">
-                      <div className="inline-block bg-uet-gold/10 px-4 py-1.5 rounded-full text-uet-gold text-[12px] font-bold uppercase tracking-[0.1em] mb-3">
+                      <div className="inline-block bg-uet-gold px-4 py-1.5 rounded-full text-uet-navy text-[12px] font-black uppercase tracking-[0.1em] mb-3 shadow-sm">
                         {data.itemInfo.cafeName}
                       </div>
                       <h2 className="text-xl font-poppins font-bold text-uet-navy mb-3 line-clamp-2">{data.itemInfo.name}</h2>

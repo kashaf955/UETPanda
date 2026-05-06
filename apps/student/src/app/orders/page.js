@@ -24,6 +24,9 @@ import {
 } from "lucide-react";
 import { push, set } from "firebase/database";
 import Link from "next/link";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { toast } from "react-hot-toast";
 
 const CAFE_NAMES = {
   cafe1: "Bhola",
@@ -53,6 +56,8 @@ const OrderTracking = () => {
     });
   };
 
+  const prevStatuses = React.useRef({});
+
   useEffect(() => {
     if (!user) return;
 
@@ -63,7 +68,6 @@ const OrderTracking = () => {
       const data = snapshot.val();
       if (data) {
         const o = Object.entries(data).map(([id, val]) => ({ id, ...val }));
-        // Sort by creation time
         o.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         setOrders(o);
       } else {
@@ -83,6 +87,72 @@ const OrderTracking = () => {
       case "Delivered": 
       case "Collected": return 3;
       default: return 1;
+    }
+  };
+
+  const downloadInvoice = async (order) => {
+    const invoiceElement = document.createElement('div');
+    invoiceElement.style.padding = '40px';
+    invoiceElement.style.background = 'white';
+    invoiceElement.style.width = '800px';
+    invoiceElement.style.color = '#001a4d';
+    invoiceElement.style.fontFamily = 'Arial, sans-serif';
+
+    const itemsHtml = order.items.map(item => `
+      <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+        <span style="font-weight: 500;">${item.quantity}x ${item.name}</span>
+        <span style="font-weight: bold;">Rs. ${item.price * item.quantity}</span>
+      </div>
+    `).join('');
+
+    invoiceElement.innerHTML = `
+      <div style="text-align: center; border-bottom: 3px solid #001a4d; padding-bottom: 20px; margin-bottom: 30px;">
+        <h1 style="color: #001a4d; margin: 0; font-size: 28px;">UET PANDA RECEIPT</h1>
+        <p style="color: #64748b; margin: 5px 0; font-size: 14px; font-weight: bold; letter-spacing: 2px;">ORDER #${order.id.slice(-8).toUpperCase()}</p>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+        <div>
+          <p style="margin: 0; color: #94a3b8; font-size: 10px; font-weight: bold; text-transform: uppercase;">Customer Email</p>
+          <p style="margin: 5px 0; font-weight: bold; color: #001a4d;">${user.email}</p>
+        </div>
+        <div style="text-align: right;">
+          <p style="margin: 0; color: #94a3b8; font-size: 10px; font-weight: bold; text-transform: uppercase;">Date</p>
+          <p style="margin: 5px 0; font-weight: bold; color: #001a4d;">${new Date(order.createdAt).toLocaleDateString()}</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 30px;">
+        <p style="margin: 0; color: #94a3b8; font-size: 10px; font-weight: bold; text-transform: uppercase;">Cafe</p>
+        <p style="margin: 5px 0; font-weight: bold; color: #001a4d; font-size: 18px;">${CAFE_NAMES[order.cafeId] || order.cafeName}</p>
+      </div>
+
+      <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+        <p style="margin: 0 0 15px 0; color: #94a3b8; font-size: 10px; font-weight: bold; text-transform: uppercase;">Order Items</p>
+        ${itemsHtml}
+        <div style="display: flex; justify-content: space-between; padding: 15px 0 0 0; margin-top: 15px; border-top: 2px solid #e2e8f0;">
+          <span style="font-weight: bold; color: #001a4d; text-transform: uppercase;">Total Paid</span>
+          <span style="font-weight: 800; color: #001a4d; font-size: 20px;">Rs. ${order.total}</span>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 40px; border-top: 1px dashed #cbd5e1; pt-20">
+        <p style="color: #94a3b8; font-size: 12px; font-style: italic;">Thank you for ordering with UET Panda!</p>
+      </div>
+    `;
+
+    document.body.appendChild(invoiceElement);
+    try {
+      const canvas = await html2canvas(invoiceElement, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Order_${order.id.slice(-8).toUpperCase()}.pdf`);
+    } finally {
+      document.body.removeChild(invoiceElement);
     }
   };
 
@@ -150,9 +220,18 @@ const OrderTracking = () => {
                            </h3>
                         </div>
                      </div>
-                     <div className="text-right shrink-0">
-                        <p className="text-[9px] uppercase font-bold text-blue-100/40 tracking-widest mb-0.5">Total Amount</p>
-                        <p className="text-xl md:text-2xl font-bold text-uet-gold">Rs. {order.total}</p>
+                     <div className="text-right shrink-0 flex flex-col items-end gap-2">
+                        <div>
+                          <p className="text-[9px] uppercase font-bold text-blue-100/40 tracking-widest mb-0.5">Total Amount</p>
+                          <p className="text-xl md:text-2xl font-bold text-uet-gold">Rs. {order.total}</p>
+                        </div>
+                        <button 
+                          onClick={() => downloadInvoice(order)}
+                          className="flex items-center gap-2 bg-white/15 hover:bg-uet-gold hover:text-uet-navy text-white px-5 py-2.5 rounded-xl text-xs font-black border border-white/20 transition-all active:scale-95 shadow-lg group"
+                        >
+                          <Package size={14} className="text-uet-gold group-hover:text-uet-navy transition-colors" />
+                          <span className="tracking-wide">PRINT INVOICE</span>
+                        </button>
                      </div>
                   </div>
 
@@ -254,10 +333,10 @@ const OrderTracking = () => {
                                             setCurrentOrder(order);
                                             setReviewModalOpen(true);
                                           }}
-                                          className="self-start mt-2 px-4 py-2 bg-uet-gold/10 text-uet-gold rounded-xl text-xs md:text-sm font-bold hover:bg-uet-gold hover:text-uet-navy flex items-center gap-2 transition-all active:scale-95 border border-uet-gold/20 shadow-sm"
+                                          className="self-start mt-4 px-6 py-3 bg-uet-gold text-uet-navy rounded-2xl text-xs md:text-sm font-black hover:scale-110 flex items-center gap-2 transition-all active:scale-95 shadow-gold border border-uet-gold/20"
                                         >
-                                          <Star size={14} className="fill-uet-gold" />
-                                          <span>Rate Item</span>
+                                          <Star size={16} className="fill-uet-navy" />
+                                          <span>RATE THIS ITEM</span>
                                         </button>
                                       )}
                                    </div>

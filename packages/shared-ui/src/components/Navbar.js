@@ -25,19 +25,16 @@ const Navbar = () => {
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <img src="/logo.png" alt="Logo" style={{ width: '130px', height: 'auto' }} className="hover:scale-105 transition-transform" />
-          {/* 
-          <span className="font-poppins font-bold text-xl tracking-tight">
-            UET <span className="text-uet-gold">PANDA</span>
-          </span>
-          */}
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-12">
             <>
               <Link href="/#cafes" className="hover:text-uet-gold transition-colors font-medium">Cafes</Link>
               <Link href="/#deals" className="hover:text-uet-gold transition-colors font-medium">Deals</Link>
               <Link href="/reviews" className="hover:text-uet-gold transition-colors font-medium">Reviews</Link>
+              <Link href="/about" className="hover:text-uet-gold transition-colors font-medium">About Us</Link>
+              <Link href="/contact" className="hover:text-uet-gold transition-colors font-medium">Contact Us</Link>
             </>
           {userRole === 'admin' && (
             <Link href="/dashboard" className="bg-uet-gold text-uet-navy px-4 py-1.5 rounded-full font-bold hover:bg-white transition-all shadow-sm">

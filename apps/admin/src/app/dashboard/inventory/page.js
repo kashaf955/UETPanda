@@ -282,8 +282,8 @@ const InventoryPage = () => {
             <thead>
               <tr className="bg-slate-50/50 text-slate-400 text-[10px] uppercase tracking-[0.2em] font-bold">
                 <th className="px-8 py-4">Item Details</th>
-                <th className="px-8 py-4">Category</th>
                 <th className="px-8 py-4">Price</th>
+                <th className="px-8 py-4">Category</th>
                 <th className="px-8 py-4">Rating</th>
                 <th className="px-8 py-4">Status</th>
                 <th className="px-8 py-4 text-center">Actions</th>

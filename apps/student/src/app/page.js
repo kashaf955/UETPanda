@@ -49,8 +49,15 @@ export default function Home() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/menu?search=${encodeURIComponent(searchQuery.trim())}`);
+    const queryStr = searchQuery.trim().toLowerCase();
+    if (!queryStr) return;
+
+    // Check if searching for a specific cafe name
+    const cafeMatch = cafes.find(c => c.name.toLowerCase().includes(queryStr));
+    if (cafeMatch) {
+      router.push(`/cafe/${cafeMatch.id}`);
+    } else {
+      router.push(`/menu?search=${encodeURIComponent(queryStr)}`);
     }
   };
 
@@ -168,8 +175,8 @@ export default function Home() {
         <div className="absolute top-0 right-0 w-[60vw] h-[60vw] bg-uet-gold/5 rounded-full -mr-[20vw] -mt-[20vw] blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-blue-600/5 rounded-full -ml-[20vw] -mb-[20vw] blur-[100px] pointer-events-none" />
         
-        <div className="container mx-auto px-4 py-8 lg:py-12 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="container mx-auto px-4 lg:px-20 py-8 lg:py-12 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-0 items-center">
             
             {/* ── Left Content ── */}
             <div className="flex flex-col items-start gap-8 lg:py-10">
@@ -266,16 +273,16 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.85, x: 50 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className="relative hidden lg:flex justify-center items-center h-full"
-            >
-              <div className="relative z-10 transform scale-110 lg:scale-125 transition-transform hover:scale-[1.3] duration-700 ease-in-out">
+              className="relative hidden lg:flex justify-center items-center h-full mt-12 -translate-x-6"
+>
+              <div className="relative z-10 transform scale-110 lg:scale-[1.35] transition-transform hover:scale-[1.4] duration-700 ease-in-out">
                 <Image 
                   src="/heroimg.png" 
                   alt="UET Panda Feast" 
-                  width={1100} 
-                  height={1100} 
+                  width={1200} 
+                  height={1200} 
                   priority
-                  className="object-contain drop-shadow-[0_0_40px_rgba(255,215,0,0.1)]"
+                  className="object-contain drop-shadow-[0_0_60px_rgba(255,215,0,0.2)]"
                 />
               </div>
             </motion.div>
@@ -291,8 +298,8 @@ export default function Home() {
               transition={{ delay: 0.6 }}
               className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[2.5rem] p-8 md:p-10"
             >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
-                <div className="flex items-center gap-6 group">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center justify-items-center">
+                <div className="flex items-center gap-6 group w-full justify-center md:justify-start lg:justify-center">
                   <div className="w-14 h-14 bg-uet-gold/10 rounded-2xl flex items-center justify-center text-uet-gold group-hover:scale-110 transition-transform">
                     <Store size={28} />
                   </div>
@@ -302,7 +309,7 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-6 group md:border-x border-white/10 md:px-12">
+                <div className="flex items-center gap-6 group w-full justify-center md:border-x border-white/10 md:px-4">
                   <div className="w-14 h-14 bg-uet-gold/10 rounded-2xl flex items-center justify-center text-uet-gold group-hover:scale-110 transition-transform">
                     <ClipboardList size={28} />
                   </div>
@@ -312,7 +319,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6 group">
+                <div className="flex items-center gap-6 group w-full justify-center md:justify-end lg:justify-center">
                   <div className="w-14 h-14 bg-uet-gold/10 rounded-2xl flex items-center justify-center text-uet-gold group-hover:scale-110 transition-transform">
                     <Clock size={28} />
                   </div>

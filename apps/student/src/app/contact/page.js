@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Navbar } from "@uet-panda/shared-ui";
 import Footer from "../../components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, AlertCircle, Facebook, Instagram } from "lucide-react";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -143,12 +143,20 @@ const ContactPage = () => {
                 <h3 className="text-lg font-bold mb-2">Follow our Journey</h3>
                 <p className="text-blue-100/40 text-sm mb-4">Stay updated with new cafe additions and exclusive campus deals.</p>
                 <div className="flex gap-3">
-                   <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-uet-gold hover:text-uet-navy transition-all cursor-pointer">
-                      <span className="font-bold text-xs">FB</span>
-                   </div>
-                   <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-uet-gold hover:text-uet-navy transition-all cursor-pointer">
-                      <span className="font-bold text-xs">IG</span>
-                   </div>
+                   <a 
+                    href="https://www.facebook.com/share/1CPgMfUc2S/" 
+                    target="_blank" rel="noopener noreferrer"
+                    className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center hover:bg-uet-gold hover:text-uet-navy transition-all cursor-pointer hover:scale-110 active:scale-95"
+                   >
+                      <Facebook size={18} />
+                   </a>
+                   <a 
+                    href="https://www.instagram.com/uet_panda/" 
+                    target="_blank" rel="noopener noreferrer"
+                    className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center hover:bg-uet-gold hover:text-uet-navy transition-all cursor-pointer hover:scale-110 active:scale-95"
+                   >
+                      <Instagram size={18} />
+                   </a>
                 </div>
               </div>
             </div>

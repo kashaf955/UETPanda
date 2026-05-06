@@ -21,11 +21,13 @@ function AdminLoginContent() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (loading) return;
+    
     setLoading(true);
     setError("");
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password);
       const user = userCredential.user;
 
       // Explicitly check role before redirecting to prevent loops
@@ -39,8 +41,17 @@ function AdminLoginContent() {
         setError("Unauthorized access. This portal is for Cafe Partners only.");
       }
     } catch (err) {
-      console.error("[Admin Login] Sign-in failed:", err);
-      setError("Invalid credentials. Please check your email and password.");
+      // Prevent Next.js from showing the crash overlay by specifically handling the error
+      const errorCode = err.code;
+      console.warn("[Admin Login] Auth Error:", errorCode);
+      
+      if (errorCode === "auth/invalid-credential" || errorCode === "auth/user-not-found" || errorCode === "auth/wrong-password") {
+        setError("Invalid email or password. Please try again.");
+      } else if (errorCode === "auth/too-many-requests") {
+        setError("Too many failed attempts. Please try again later.");
+      } else {
+        setError("Login failed. Please check your connection and try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -60,27 +71,22 @@ function AdminLoginContent() {
         <div className="flex flex-col md:flex-row bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[500px]">
           
           {/* Left Side: Branding Info */}
-          <div className="hidden md:flex md:w-5/12 bg-uet-gold/90 p-10 flex-col justify-between relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+          <div className="hidden md:flex md:w-5/12 bg-uet-navy/95 p-10 flex-col justify-between relative overflow-hidden border-r border-white/10">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-uet-gold/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
              <div>
-                <Link href="/" className="inline-flex items-center gap-2 text-uet-navy font-bold text-sm mb-12 hover:translate-x-1 transition-transform">
-                   <ArrowLeft size={16} />
+                <Link href="/" className="inline-flex items-center gap-2 text-uet-gold font-bold text-sm mb-12 hover:translate-x-1 transition-transform group">
+                   <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                    Back to Site
                 </Link>
                 <div className="mb-6">
-                   <img src="/logo.png" alt="Logo" style={{ width: '130px', height: 'auto' }} />
+                   <img src="/logo.png" alt="Logo" style={{ width: '130px', height: 'auto' }} className="drop-shadow-lg" />
                 </div>
-                {/* 
-                <div className="p-4 bg-uet-navy rounded-2xl inline-block shadow-lg mb-6">
-                   <Store size={32} className="text-uet-gold" />
-                </div>
-                */}
-                <h2 className="text-3xl font-poppins font-extrabold text-uet-navy tracking-tight leading-tight">
+                <h2 className="text-3xl font-poppins font-extrabold text-white tracking-tight leading-tight">
                    Merchant <br/>
-                   <span className="text-white">Portal</span>
+                   <span className="text-uet-gold">Portal</span>
                 </h2>
              </div>
-             <p className="text-uet-navy/70 text-xs font-bold uppercase tracking-widest leading-relaxed">
+             <p className="text-blue-100/40 text-xs font-bold uppercase tracking-widest leading-relaxed">
                 Secure management for <br/>
                 UET Panda partners
              </p>

@@ -1,6 +1,7 @@
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import { AuthContextProvider, CartContextProvider } from "@uet-panda/shared-config";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
       >
         <AuthContextProvider>
           <CartContextProvider>
+            <Toaster position="top-right" />
             {children}
           </CartContextProvider>
         </AuthContextProvider>

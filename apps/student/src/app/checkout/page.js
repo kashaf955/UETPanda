@@ -6,6 +6,7 @@ import { ref, push, set } from "firebase/database";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Phone, User, CreditCard, Banknote, CheckCircle2, ArrowRight, Loader2, Truck, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 const CAFE_NAMES = {
   cafe1: "Bhola",
@@ -86,6 +87,16 @@ const CheckoutPage = () => {
       }
 
       setOrderComplete(true);
+      toast.success("Order Placed Successfully! 🐼", {
+        duration: 5000,
+        icon: '🎉',
+        style: {
+          borderRadius: '16px',
+          background: '#001a4d',
+          color: '#fff',
+          fontWeight: 'bold',
+        },
+      });
       clearCart();
       setTimeout(() => {
         router.push("/"); // Redirect after success

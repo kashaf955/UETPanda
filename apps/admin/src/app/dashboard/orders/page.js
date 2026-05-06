@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { ref, query, orderByChild, equalTo, onValue, update, increment } from "firebase/database";
 import { db, useAuthContext } from "@uet-panda/shared-config";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-hot-toast";
 import { 
   ShoppingBag, 
   Clock, 
@@ -33,6 +34,9 @@ const OrderManagement = () => {
   const [availableRiders, setAvailableRiders] = useState([]);
   const [selectedRiderId, setSelectedRiderId] = useState("");
 
+  const isFirstLoad = React.useRef(true);
+  const knownOrderIds = React.useRef(new Set());
+
   useEffect(() => {
     if (!cafeId) return;
 
@@ -45,11 +49,34 @@ const OrderManagement = () => {
       if (data) {
         const o = Object.entries(data).map(([id, val]) => ({ id, ...val }));
         o.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        
+        // Detect genuinely new orders by ID
+        const newOrdersFound = o.filter(order => !knownOrderIds.current.has(order.id));
+        
+        if (!isFirstLoad.current && newOrdersFound.length > 0) {
+          newOrdersFound.forEach(() => {
+            toast.success("New Order Received! 🛎️", {
+              duration: 5000,
+              icon: '🍔',
+              style: {
+                borderRadius: '16px',
+                background: '#001a4d',
+                color: '#fff',
+                fontWeight: 'bold',
+                border: '1px solid rgba(255, 215, 0, 0.2)'
+              },
+            });
+          });
+        }
+
+        // Update known IDs
+        o.forEach(order => knownOrderIds.current.add(order.id));
         setOrders(o);
       } else {
         setOrders([]);
       }
       setLoading(false);
+      isFirstLoad.current = false;
     });
 
     // Fetch Riders
@@ -90,6 +117,13 @@ const OrderManagement = () => {
       }
 
       await update(ref(db), updates);
+      toast.success(`Order #${orderId.slice(-6)} successfully updated to ${newStatus}! 👍`, {
+        style: {
+          borderRadius: '12px',
+          background: '#001a4d',
+          color: '#fff',
+        },
+      });
       setSelectedOrder(null);
       setSelectedRiderId("");
     } catch (error) {
