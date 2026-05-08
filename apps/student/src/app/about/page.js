@@ -105,7 +105,9 @@ const AboutPage = () => {
         <div className="container mx-auto max-w-7xl">
           <div className="flex flex-col lg:flex-row gap-16 lg:items-start">
             <div className="lg:w-1/3">
-              <p className="text-uet-gold font-bold uppercase tracking-[0.2em] text-[10px] mb-4">Our Story</p>
+              <p className="text-uet-gold font-extrabold uppercase tracking-[0.18em] text-base sm:text-lg md:text-xl mb-5">
+                Our Story
+              </p>
               <h2 className="text-4xl font-poppins font-bold text-uet-navy leading-tight mb-6">
                 Born to connect every UET café to one delivery app.
               </h2>
@@ -158,9 +160,13 @@ const AboutPage = () => {
       {/* ─── Values Section ─── */}
       <section className="py-24 px-4 bg-slate-50">
         <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-16">
-            <p className="text-uet-gold font-bold uppercase tracking-[0.2em] text-[10px] mb-4">Our Values</p>
-            <h2 className="text-4xl font-poppins font-bold text-uet-navy">Three things we never compromise on.</h2>
+          <div className="text-center mb-16 px-2">
+            <p className="text-uet-gold font-extrabold uppercase tracking-[0.18em] text-base sm:text-lg md:text-xl mb-5">
+              Our Values
+            </p>
+            <h2 className="text-4xl font-poppins font-bold text-uet-navy">
+              Three things we never compromise on.
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
@@ -227,8 +233,8 @@ const AboutPage = () => {
       </section>
 
       {/* ─── Call To Action ─── */}
-      <section className="py-24 px-4 bg-white">
-        <div className="container mx-auto max-w-5xl">
+      <section className="py-24 bg-white">
+        <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
            <motion.div 
              initial={{ opacity: 0, y: 20 }}
              whileInView={{ opacity: 1, y: 0 }}

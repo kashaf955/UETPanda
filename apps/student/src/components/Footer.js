@@ -13,11 +13,11 @@ const Footer = () => {
 
           {/* Brand + Social */}
           <div>
-            <Link href="/" className="inline-block mt-[-50px] -ml-4 mb-2">
+            <Link href="/" className="inline-block mt-[-50px] -ml-6 mb-2">
               <img src="/logo.png" alt="Logo" style={{ width: '160px', height: 'auto' }} className="hover:scale-105 transition-transform" />
             </Link>
-            <p className="text-blue-100/50 text-sm leading-relaxed max-w-sm mb-6 -mt-5">
-              The unified food ordering platform for UET Lahore. Order from 5 cafes in one seamless cart.
+            <p className="text-blue-100/50 text-sm leading-relaxed max-w-sm mb-6 -mt-8">
+              The unified food ordering platform for UET Lahore. Order from 4 cafes in one seamless cart.
             </p>
             <div className="space-y-4">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-uet-gold/70 mb-4">Follow Us</p>
