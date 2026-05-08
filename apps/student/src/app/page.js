@@ -175,7 +175,7 @@ export default function Home() {
         <div className="absolute top-0 right-0 w-[60vw] h-[60vw] bg-uet-gold/5 rounded-full -mr-[20vw] -mt-[20vw] blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-blue-600/5 rounded-full -ml-[20vw] -mb-[20vw] blur-[100px] pointer-events-none" />
         
-        <div className="container mx-auto px-4 lg:px-20 py-8 lg:py-12 relative z-10">
+        <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 py-8 lg:py-12 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-0 items-center">
             
             {/* ── Left Content ── */}
@@ -231,7 +231,7 @@ export default function Home() {
                     type="text" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search for cafes or dishes..."
+                    placeholder="Search for deals or food..."
                     className="bg-transparent border-none outline-none flex-grow px-4 py-2 text-sm md:text-base text-white placeholder:text-white/20"
                   />
                   <button 
@@ -273,7 +273,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.85, x: 50 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className="relative hidden lg:flex justify-center items-center h-full mt-12 -translate-x-6"
+              className="relative hidden lg:flex justify-center items-center h-full mt-12 -translate-x-16"
 >
               <div className="relative z-10 transform scale-110 lg:scale-[1.35] transition-transform hover:scale-[1.4] duration-700 ease-in-out">
                 <Image 
@@ -364,8 +364,8 @@ export default function Home() {
       </section>
 
       {/* Cafe Cards Section */}
-      <section id="cafes" ref={cafeSectionRef} className="py-20 px-4">
-        <div className="container mx-auto max-w-[1400px]">
+      <section id="cafes" ref={cafeSectionRef} className="py-20">
+        <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl xl:text-5xl font-poppins font-bold text-uet-navy">
               Choose Your <span className="text-uet-gold">Cafe</span>
@@ -375,7 +375,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6 xl:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
             {cafes.map((cafe, i) => (
               <motion.div
                 key={cafe.id}
@@ -383,7 +383,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="group bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col w-full sm:w-[calc(50%-1.5rem)] lg:w-[calc(33.33%-2rem)] 2xl:w-[calc(20%-2.5rem)] max-w-[320px]"
+                className="group bg-white rounded-[2rem] overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col w-full"
               >
                 {/* Image */}
                 <div className="relative h-48 overflow-hidden">
@@ -426,8 +426,8 @@ export default function Home() {
       </section>
 
       {/* Featured Deals Section */}
-      <section id="deals" className="py-20 px-4 bg-white">
-        <div className="container mx-auto max-w-[1400px]">
+      <section id="deals" className="py-20 bg-white">
+        <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
             <div>

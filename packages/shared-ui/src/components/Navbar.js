@@ -21,7 +21,7 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 bg-uet-navy text-white shadow-navy border-b border-white/10" style={{ zIndex: 9999 }}>
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <img src="/logo.png" alt="Logo" style={{ width: '130px', height: 'auto' }} className="hover:scale-105 transition-transform" />

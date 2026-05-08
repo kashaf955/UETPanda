@@ -6,17 +6,17 @@ const Footer = () => {
   return (
     <footer className="bg-uet-navy text-white relative overflow-hidden">
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-uet-gold/5 rounded-full -mr-60 -mt-60 blur-[100px] pointer-events-none" />
-      <div className="container mx-auto max-w-[1400px] px-4 pt-16 pb-8 relative z-10">
+      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-16 pb-8 relative z-10">
 
         {/* ── Main Grid ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pb-12 border-b border-white/10">
 
           {/* Brand + Social */}
           <div>
-            <Link href="/" className="inline-block mt-[-50px] mb-4">
+            <Link href="/" className="inline-block mt-[-50px] -ml-4 mb-2">
               <img src="/logo.png" alt="Logo" style={{ width: '160px', height: 'auto' }} className="hover:scale-105 transition-transform" />
             </Link>
-            <p className="text-blue-100/50 text-sm leading-relaxed max-w-sm mb-6">
+            <p className="text-blue-100/50 text-sm leading-relaxed max-w-sm mb-6 -mt-5">
               The unified food ordering platform for UET Lahore. Order from 5 cafes in one seamless cart.
             </p>
             <div className="space-y-4">
